@@ -1,0 +1,46 @@
+{
+  "name": "webcake-data",
+  "version": "1.0.1",
+  "description": "A modern JavaScript/TypeScript client library for WebCake database operations with MongoDB-like query interface",
+  "main": "index.js",
+  "module": "index.js",
+  "browser": "webcake-data.js",
+  "type": "module",
+  "files": [
+    "src/",
+    "index.js",
+    "webcake-data.js",
+    "types/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "webcake",
+    "database",
+    "client",
+    "mongodb",
+    "query-builder",
+    "orm",
+    "api-client",
+    "javascript",
+    "typescript"
+  ],
+  "author": "vuluu2k",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vuluu2k/webcake-data.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vuluu2k/webcake-data/issues"
+  },
+  "homepage": "https://github.com/vuluu2k/webcake-data#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  },
+  "peerDependencies": {},
+  "dependencies": {}
+}
