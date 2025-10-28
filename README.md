@@ -28,7 +28,10 @@ import { DBConnection } from 'webcake-data';
 const db = new DBConnection({
   baseURL: 'https://api.webcake.com/api/v1',
   siteId: 'your-site-id',
-  token: 'your-auth-token'
+  token: 'your-auth-token',
+  headers: {
+    'x-cms-api-key': 'your-api-key' // For API permission checking
+  }
 });
 
 // Create a model
@@ -81,6 +84,19 @@ new DBConnection(config)
 - `config.siteId` (string, optional): Site ID (auto-detected from DOM if not provided)
 - `config.token` (string, optional): Authentication token
 - `config.headers` (object, optional): Additional headers
+- `config.headers['x-cms-api-key']` (string, optional): API key for permission checking
+
+**Example:**
+```javascript
+const db = new DBConnection({
+  baseURL: 'https://api.webcake.com/api/v1',
+  siteId: 'your-site-id',
+  token: 'your-auth-token',
+  headers: {
+    'x-cms-api-key': 'your-api-key' // For API permission checking
+  }
+});
+```
 
 #### Methods
 
@@ -153,7 +169,10 @@ import { DBConnection } from 'webcake-data';
 const db = new DBConnection({
   baseURL: 'https://api.webcake.com/api/v1',
   siteId: 'your-site-id',
-  token: 'your-auth-token'
+  token: 'your-auth-token',
+  headers: {
+    'x-cms-api-key': 'your-api-key' // For API permission checking
+  }
 });
 
 const User = db.model('users');
@@ -263,7 +282,10 @@ interface User {
 
 const db = new DBConnection({
   baseURL: 'https://api.webcake.com/api/v1',
-  siteId: 'your-site-id'
+  siteId: 'your-site-id',
+  headers: {
+    'x-cms-api-key': 'your-api-key' // For API permission checking
+  }
 });
 
 const UserModel: DBModel = db.model<User>('users');

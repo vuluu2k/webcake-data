@@ -3,8 +3,39 @@ import { DBModel } from './DBModel.js';
 /**
  * DBConnection class for managing database connections and operations
  * Main entry point for database operations
+ * 
+ * @example
+ * // Basic usage
+ * const db = new DBConnection();
+ * 
+ * // With authentication token
+ * const db = new DBConnection({ token: 'your-token' });
+ * 
+ * // With custom API key for permission checking
+ * const db = new DBConnection({
+ *   headers: {
+ *     'x-cms-api-key': 'your-api-key'
+ *   }
+ * });
+ * 
+ * // With both token and API key
+ * const db = new DBConnection({
+ *   token: 'your-token',
+ *   headers: {
+ *     'x-cms-api-key': 'your-api-key'
+ *   }
+ * });
  */
 export class DBConnection {
+  /**
+   * Create a DBConnection instance
+   * @param {Object} config - Configuration options
+   * @param {string} config.siteId - Site ID (defaults to DOM attribute 'x:id')
+   * @param {string} config.baseURL - Base URL for API endpoints
+   * @param {string} config.token - Authentication token (used in Authorization header)
+   * @param {Object} config.headers - Custom headers to include in requests
+   * @param {string} config.headers['x-cms-api-key'] - API key for permission checking
+   */
   constructor(config = {}) {
     // Get siteId from DOM or config
     const siteId = config.siteId || this._getSiteIdFromDOM();
