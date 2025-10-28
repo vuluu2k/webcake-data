@@ -10,6 +10,7 @@ A modern JavaScript/TypeScript client library for WebCake database operations wi
 - 🌐 **Browser & Node.js Compatible** - Works everywhere JavaScript runs
 - 📦 **Zero Dependencies** - Lightweight with no external dependencies
 - 🔗 **Fluent API** - Chainable query builder for complex operations
+- ⚡ **Minified Builds** - Optimized and compressed for production use
 
 ## Installation
 
@@ -57,14 +58,26 @@ const { DBConnection } = require('webcake-data');
 
 ### Browser (Global)
 
+Using CDN (Unpkg or JSDelivr):
+
 ```html
-<script src="https://unpkg.com/webcake-data@latest/webcake-data.js"></script>
+<!-- Minified version (recommended for production) -->
+<script src="https://unpkg.com/webcake-data@latest/dist/webcake-data.umd.min.js"></script>
 <script>
   const db = new WebCakeData.DBConnection({
     baseURL: '/api/v1',
-    siteId: 'your-site-id'
+    siteId: 'your-site-id',
+    headers: {
+      'x-cms-api-key': 'your-api-key' // For API permission checking
+    }
   });
 </script>
+```
+
+Using JSDelivr:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/webcake-data@latest/dist/webcake-data.umd.min.js"></script>
 ```
 
 ## API Reference
@@ -309,13 +322,59 @@ const db = new DBConnection({
 });
 ```
 
+## Development
+
+### Building the Library
+
+The library uses [Rollup](https://rollupjs.org/) for bundling and minification. Build scripts are available:
+
+```bash
+# Build minified and unminified versions for all formats
+npm run build
+
+# Production build with optimizations
+npm run build:prod
+```
+
+Build outputs are generated in the `dist/` directory:
+
+- `webcake-data.esm.min.js` - ES Module (minified, ~7.4KB)
+- `webcake-data.umd.min.js` - UMD format (minified, ~7.6KB) - for browsers
+- `webcake-data.esm.js` - ES Module (unminified)
+- `webcake-data.umd.js` - UMD format (unminified)
+
+### File Sizes
+
+The minified builds are optimized for production use:
+
+- **ESM Minified**: ~7.4KB
+- **UMD Minified**: ~7.6KB (includes browser global export)
+
+### Minification Details
+
+The library is minified using [Terser](https://github.com/terser/terser) with the following optimizations:
+
+- Variable name mangling
+- Dead code elimination
+- Whitespace and comment removal
+- Property access optimization
+- 2-pass compression for maximum size reduction
+
+### Contributing
+
+To contribute to the library:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes and add tests
+4. Run the build: `npm run build`
+5. Commit your changes (`git commit -m 'Add some amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 

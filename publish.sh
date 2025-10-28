@@ -30,6 +30,15 @@ if ! npm whoami > /dev/null 2>&1; then
     exit 1
 fi
 
+# Build the library
+echo "🔨 Building library..."
+npm run build
+
+if [ $? -ne 0 ]; then
+    echo "❌ Build failed!"
+    exit 1
+fi
+
 # Get current version
 CURRENT_VERSION=$(node -p "require('./package.json').version")
 echo "📦 Current version: $CURRENT_VERSION"

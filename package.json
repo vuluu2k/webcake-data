@@ -1,18 +1,22 @@
 {
   "name": "webcake-data",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A modern JavaScript/TypeScript client library for WebCake database operations with MongoDB-like query interface",
   "main": "index.js",
   "module": "index.js",
-  "browser": "webcake-data.js",
+  "browser": "dist/webcake-data.umd.min.js",
+  "jsdelivr": "dist/webcake-data.umd.min.js",
+  "unpkg": "dist/webcake-data.umd.min.js",
   "type": "module",
   "files": [
     "src/",
     "index.js",
     "webcake-data.js",
+    "dist/",
     "types/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "rollup.config.js"
   ],
   "keywords": [
     "webcake",
@@ -38,9 +42,14 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "devDependencies": {
-    "eslint": "^8.0.0"
+  "scripts": {
+    "build": "rollup -c",
+    "build:prod": "rollup -c --environment NODE_ENV:production"
   },
-  "peerDependencies": {},
-  "dependencies": {}
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "eslint": "^8.0.0",
+    "rollup": "^4.52.5"
+  }
 }
