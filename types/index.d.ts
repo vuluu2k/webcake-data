@@ -18,9 +18,9 @@ export interface PopulateConfig {
   field: string;
   table: string;
   referenceField: string;
-  select?: string;
-  where?: string;
-  sort?: string;
+  select?: string | string[];
+  where?: Record<string, any> | string;
+  sort?: Record<string, 1 | -1> | string;
   limit?: number | null;
   skip?: number;
   justOne?: boolean;
@@ -63,7 +63,7 @@ export interface ApiResponse<T = any> {
 export declare class QueryBuilder {
   constructor(collectionName: string, apiClient: DBConnection);
   
-  where(field: string, operator: string | any, value?: any): QueryBuilder;
+  where(field: string | Record<string, any>, operator?: string | any, value?: any): QueryBuilder;
   eq(field: string, value: any): QueryBuilder;
   gt(field: string, value: any): QueryBuilder;
   gte(field: string, value: any): QueryBuilder;

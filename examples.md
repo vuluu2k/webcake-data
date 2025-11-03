@@ -102,6 +102,11 @@ await User.deleteMany({ active: false });
 ### Query Builder Examples
 
 ```javascript
+// Using where with object (new)
+const usersWithObj = await User.find()
+  .where({ active: true, age: { $gte: 25 } })
+  .exec();
+
 // Simple where conditions
 const users = await User.find()
   .where('active', true)
@@ -180,15 +185,15 @@ const usersWithPosts = await User.find()
   })
   .exec();
 
-// Complex population with conditions
+// Complex population with conditions using object-based where and sort
 const usersWithRecentPosts = await User.find()
   .populate({
     field: 'posts',
     table: 'posts',
     referenceField: 'user_id',
     select: 'title content',
-    where: 'published = true AND created_at > NOW() - INTERVAL 7 DAY',
-    sort: 'created_at DESC',
+    where: { published: true, created_at: { $gte: new Date(Date.now() - 7*24*60*60*1000) } },
+    sort: { created_at: -1 },
     limit: 5,
     justOne: false
   })
@@ -283,7 +288,7 @@ class UserService {
         table: 'posts',
         referenceField: 'user_id',
         select: 'title content created_at',
-        sort: 'created_at DESC'
+        sort: { created_at: -1 }
       })
       .exec();
   }
@@ -349,7 +354,7 @@ class BlogService {
         table: 'comments',
         referenceField: 'post_id',
         select: 'content created_at',
-        sort: 'created_at ASC'
+        sort: { created_at: 1 }
       })
       .exec();
   }
@@ -421,7 +426,7 @@ class AnalyticsService {
         table: 'posts',
         referenceField: 'user_id',
         select: 'id',
-        where: 'published = true'
+        where: { published: true }
       })
       .sort({ 'posts_count': -1 })
       .limit(limit)

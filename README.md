@@ -154,7 +154,7 @@ Fluent query builder for complex database queries.
 
 #### Methods
 
-- `where(field, operator, value)` - Add filter condition
+- `where(field, operator, value)` - Add filter condition (supports: where(obj), where(field, value), or where(field, operator, value))
 - `eq(field, value)` - Equality filter
 - `gt(field, value)` - Greater than filter
 - `gte(field, value)` - Greater than or equal filter
@@ -219,6 +219,11 @@ await User.findByIdAndDelete('user-id');
 ### Advanced Queries
 
 ```javascript
+// Using where with object
+const results1 = await User.find()
+  .where({ active: true, age: { $gte: 25 } })
+  .exec();
+
 // Complex query with multiple conditions
 const results = await User.find()
   .where('age').gte(25).lte(40)
@@ -231,15 +236,15 @@ const results = await User.find()
   .select('name email age')
   .exec();
 
-// Population (joins)
+// Population (joins) with object-based where and sort
 const usersWithPosts = await User.find()
   .populate({
     field: 'posts',
     table: 'posts',
     referenceField: 'user_id',
     select: 'title content',
-    where: 'published = true',
-    sort: 'created_at DESC',
+    where: { published: true },
+    sort: { created_at: -1 },
     limit: 5
   })
   .exec();

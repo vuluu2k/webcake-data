@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2024-11-03
+
+### Enhanced
+- Enhanced `QueryBuilder.where()` method to support object-based filters
+- Enhanced `populate()` method to support object-based `where` and `sort` parameters
+- Improved API consistency between QueryBuilder and populate methods
+
+### Changed
+- `QueryBuilder.where()` now supports three calling patterns:
+  - `where(filters)` - Pass an object with filter conditions
+  - `where(field, value)` - Pass field and value (equals)
+  - `where(field, operator, value)` - Pass field, operator, and value
+- `populate()` now accepts `where` and `sort` as objects (like QueryBuilder) or strings
+- Updated response handling in `updateOne`, `updateMany`, `deleteOne`, and `deleteMany` methods
+- Added `window.DBConnection` global export for easier browser usage
+
+### Fixed
+- Fixed `DBModel.find()` to use object-based filter application
+- Updated TypeScript definitions for better type safety
+
+### Documentation
+- Added comprehensive examples for new `where()` object syntax
+- Updated all populate examples to use object-based `where` and `sort`
+- Enhanced documentation with clearer examples
+
+## [1.0.2] - 2024-01-XX
+
+### Added
+- Initial release of WebCake Data library
+
 ## [1.0.0] - 2024-01-XX
 
 ### Added

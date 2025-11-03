@@ -39,9 +39,7 @@ export class DBModel {
     const query = new QueryBuilder(this.collectionName, this.apiClient);
     
     // Apply filters
-    Object.keys(filters).forEach(key => {
-      query.where(key, filters[key]);
-    });
+    query.where(filters);
     
     return query;
   }
@@ -78,8 +76,8 @@ export class DBModel {
 
     return {
       acknowledged: true,
-      matchedCount: res.length,
-      modifiedCount: res.length
+      matchedCount: res?.id ? 1 : 0,
+      modifiedCount: res?.id ? 1 : 0
     };
   }
 
@@ -123,9 +121,9 @@ export class DBModel {
     const res = await this.apiClient.updateMany(this.collectionName, filters, fields);
 
     return {
-      acknowledged: true,
-      matchedCount: res.length,
-      modifiedCount: res.length
+      acknowledged: res.acknowledged,
+      matchedCount: res.matched_count,
+      modifiedCount: res.modified_count
     };
   }
 
@@ -139,7 +137,7 @@ export class DBModel {
 
     return {
       acknowledged: true,
-      deletedCount: res.length
+      deletedCount: res?.id ? 1 : 0
     };
   }
 
@@ -171,7 +169,7 @@ export class DBModel {
 
     return {
       acknowledged: true,
-      deletedCount: res.length
+      deletedCount: res.deleted_count
     };
   }
 

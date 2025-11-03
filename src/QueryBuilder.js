@@ -16,13 +16,15 @@ export class QueryBuilder {
 
   /**
    * Add a filter condition
-   * @param {string} field - Field name
+   * @param {string|Object} field - Field name or filter object
    * @param {string|*} operator - Operator or value (if only 2 args)
    * @param {*} value - Value (if 3 args)
    * @returns {QueryBuilder} This instance for chaining
    */
   where(field, operator, value) {
-    if (arguments.length === 2) {
+    if (arguments.length === 1) {
+      this.filters = field;
+    } else if (arguments.length === 2) {
       // where(field, value) - equals
       this.filters[field] = { '$eq': operator };
     } else {
@@ -189,9 +191,9 @@ export class QueryBuilder {
    * @param {string} config.field - Field to populate
    * @param {string} config.table - Table to populate from
    * @param {string} config.referenceField - Reference field
-   * @param {string} [config.select=""] - Fields to select
-   * @param {string} [config.where=""] - Where conditions
-   * @param {string} [config.sort=""] - Sort options
+   * @param {string|Array} [config.select=""] - Fields to select
+   * @param {Object|string} [config.where] - Where conditions (object like QueryBuilder filters, or string)
+   * @param {Object|string} [config.sort] - Sort options (object like {field: 1|-1}, or string)
    * @param {number|null} [config.limit=null] - Limit
    * @param {number} [config.skip=0] - Skip
    * @param {boolean} [config.justOne=false] - Return single record
@@ -202,8 +204,8 @@ export class QueryBuilder {
     table,
     referenceField, 
     select = "", 
-    where = "", 
-    sort = "", 
+    where, 
+    sort, 
     limit = null, 
     skip = 0,
     justOne = false

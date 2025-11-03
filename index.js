@@ -23,4 +23,5 @@ if (typeof window !== 'undefined') {
     DBModel,
     QueryBuilder
   };
+  window.DBConnection = DBConnection;
 }
