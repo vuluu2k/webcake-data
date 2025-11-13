@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2025-11-13
+
+### Added
+- Automatically include `x-article-id` header when `window.store_post.viewPost.id` is available
+- Automatically include `x-product-id` header when `window.store_product.viewProduct.id` is available
+
+### Changed
+- Guard browser-specific headers during `DBConnection` initialization to ensure window dependencies are optional
+
 ## [1.0.3] - 2024-11-03
+
 
 ### Enhanced
 - Enhanced `QueryBuilder.where()` method to support object-based filters
