@@ -47,6 +47,16 @@ export class DBConnection {
       'Authorization': config.token ? `Bearer ${config.token}` : '',
       ...config.headers
     };
+
+    if (typeof window !== 'undefined') {
+      if(window?.store_post?.viewPost?.id) {
+        this.headers['x-article-id'] = window.store_post.viewPost.id;
+      }
+
+      if(window?.store_product?.viewProduct?.id) {
+        this.headers['x-product-id'] = window.store_product.viewProduct.id;
+      }
+    }
   }
 
   /**
