@@ -49,8 +49,10 @@ export class DBModel {
    * @param {Object} [filters={}] - Filter conditions
    * @returns {Promise<Object|null>} Found document or null
    */
-  async findOne(filters = {}) {
-    const query = this.find(filters).limit(1);
+  async findOne(filters = {}, options = {}) {
+    const query = this.find(filters);
+    this._applyQueryOptions(query, options);
+    query.limit(1);
     const results = await query.exec();
     return results[0] || null;
   }
@@ -60,8 +62,8 @@ export class DBModel {
    * @param {string} id - Document ID
    * @returns {Promise<Object|null>} Found document or null
    */
-  async findById(id) {
-    return await this.findOne({ id });
+  async findById(id, options = {}) {
+    return await this.findOne({ id }, options);
   }
 
   /**
@@ -204,5 +206,39 @@ export class DBModel {
       field_name: key,
       field_value: data[key]
     }));
+  }
+
+  /**
+   * Apply read-only query options (select, sort, populate, etc.) to a builder
+   * @private
+   * @param {QueryBuilder} query - Query builder instance
+   * @param {Object} options - Query customization options
+   * @returns {QueryBuilder}
+   */
+  _applyQueryOptions(query, options = {}) {
+    if (!options || typeof options !== 'object') {
+      return query;
+    }
+
+    const {
+      select,
+      sort,
+      populate
+    } = options;
+
+    if (select) {
+      query.select(select);
+    }
+
+    if (sort) {
+      query.sort(sort);
+    }
+
+    if (populate) {
+      const populateConfigs = Array.isArray(populate) ? populate : [populate];
+      populateConfigs.forEach(config => query.populate(config));
+    }
+
+    return query;
   }
 }

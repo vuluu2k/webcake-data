@@ -135,8 +135,8 @@ Model class for collection operations.
 - `create(data)` - Create a new document
 - `insertMany(dataArray)` - Create multiple documents
 - `find(filters)` - Find documents (returns QueryBuilder)
-- `findOne(filters)` - Find one document
-- `findById(id)` - Find document by ID
+- `findOne(filters, options)` - Find one document with optional select/sort/populate
+- `findById(id, options)` - Find document by ID with optional select/sort/populate
 - `updateOne(filters, updateData)` - Update one document
 - `findByIdAndUpdate(id, updateData, options)` - Update document by ID
 - `findOneAndUpdate(filters, updateData)` - Find and update one document
@@ -147,6 +147,11 @@ Model class for collection operations.
 - `deleteMany(filters)` - Delete multiple documents
 - `countDocuments(filters)` - Count documents
 - `exists(filters)` - Check if documents exist
+
+**`findOne`/`findById` options:**
+- `select` (string | string[]): Fields to return
+- `sort` (object): Sort order applied before taking the first record
+- `populate` (object | object[]): Populate configuration(s) identical to `QueryBuilder.populate()`
 
 ### QueryBuilder
 
@@ -200,8 +205,22 @@ const user = await User.create({
 
 // Read
 const users = await User.find({ active: true }).exec();
-const user = await User.findOne({ email: 'john@example.com' });
-const userById = await User.findById('user-id');
+const user = await User.findOne(
+  { email: 'john@example.com' },
+  {
+    select: ['id', 'name', 'email'],
+    populate: {
+      field: 'profile',
+      table: 'profiles',
+      referenceField: 'user_id',
+      select: 'avatar bio'
+    }
+  }
+);
+const userById = await User.findById('user-id', {
+  select: 'id name email',
+  sort: { created_at: -1 }
+});
 
 // Update
 await User.updateOne(
