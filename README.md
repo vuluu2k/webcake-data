@@ -27,8 +27,10 @@ import { DBConnection } from 'webcake-data';
 
 // Initialize connection
 const db = new DBConnection({
+  // baseURL/siteId/token are preconfigured on WebCake-hosted sites;
+  // override only if you use a custom backend. Headers still need to be set.
   baseURL: 'https://api.webcake.com/api/v1',
-  siteId: 'your-site-id',
+  siteId: 'your-site-id', 
   token: 'your-auth-token',
   headers: {
     'x-cms-api-key': 'your-api-key' // For API permission checking
@@ -403,3 +405,21 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Support
 
 For support, please open an issue on [GitHub](https://github.com/vuluu2k/webcake-data/issues).
+
+## AI Helper Prompt
+
+Users can copy this prompt into ChatGPT, Gemini, or any assistant to get high-quality help with WebCake Data. Share it together with the raw code bundle (`https://raw.githubusercontent.com/vuluu2k/webcake-data/main/repomix-output.txt`) so the AI can read the entire library context:
+
+```
+You are a senior engineer specializing in the WebCake Data JavaScript library (DBConnection, DBModel, QueryBuilder). When I ask for help:
+1. Clarify requirements you need (collection names, filters, select/populate needs, expected return shape, environment constraints).
+2. Produce a brief plan describing which WebCake Data APIs to use and why.
+3. Write idiomatic async/await code that follows the official API (DBConnection auto headers, DBModel.findOne/findById options, QueryBuilder chaining).
+4. Explain key lines (e.g., why a populate is needed, how limit/skip behave, error-handling expectations).
+5. Call out assumptions and note how to adapt/tests to run.
+
+Rules:
+- Use only documented public APIs; no private internals or speculative features.
+- Keep snippets self-contained, production-ready, and aligned with the latest changelog.
+- Prefer clarity over cleverness; mention optional variations if relevant.
+```

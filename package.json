@@ -1,6 +1,6 @@
 {
   "name": "webcake-data",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A modern JavaScript/TypeScript client library for WebCake database operations with MongoDB-like query interface",
   "main": "index.js",
   "module": "index.js",

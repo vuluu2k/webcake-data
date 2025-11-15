@@ -1,0 +1,988 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: ./src
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+src/
+  DBConnection.js
+  DBModel.js
+  QueryBuilder.js
+
+================================================================
+Files
+================================================================
+
+================
+File: src/DBConnection.js
+================
+import { DBModel } from './DBModel.js';
+
+/**
+ * DBConnection class for managing database connections and operations
+ * Main entry point for database operations
+ * 
+ * @example
+ * // Basic usage
+ * const db = new DBConnection();
+ * 
+ * // With authentication token
+ * const db = new DBConnection({ token: 'your-token' });
+ * 
+ * // With custom API key for permission checking
+ * const db = new DBConnection({
+ *   headers: {
+ *     'x-cms-api-key': 'your-api-key'
+ *   }
+ * });
+ * 
+ * // With both token and API key
+ * const db = new DBConnection({
+ *   token: 'your-token',
+ *   headers: {
+ *     'x-cms-api-key': 'your-api-key'
+ *   }
+ * });
+ */
+export class DBConnection {
+  /**
+   * Create a DBConnection instance
+   * @param {Object} config - Configuration options
+   * @param {string} config.siteId - Site ID (defaults to DOM attribute 'x:id')
+   * @param {string} config.baseURL - Base URL for API endpoints
+   * @param {string} config.token - Authentication token (used in Authorization header)
+   * @param {Object} config.headers - Custom headers to include in requests
+   * @param {string} config.headers['x-cms-api-key'] - API key for permission checking
+   */
+  constructor(config = {}) {
+    // Get siteId from DOM or config
+    const siteId = config.siteId || this._getSiteIdFromDOM();
+    
+    this.baseURL = config.baseURL || `/api/v1/${siteId}`;
+    this.siteId = siteId;
+    this.headers = {
+      'Content-Type': 'application/json',
+      'Authorization': config.token ? `Bearer ${config.token}` : '',
+      ...config.headers
+    };
+
+    if (typeof window !== 'undefined') {
+      if(window?.store_post?.viewPost?.id) {
+        this.headers['x-article-id'] = window.store_post.viewPost.id;
+      }
+
+      if(window?.store_product?.viewProduct?.id) {
+        this.headers['x-product-id'] = window.store_product.viewProduct.id;
+      }
+    }
+  }
+
+  /**
+   * Get site ID from DOM attributes
+   * @private
+   * @returns {string} Site ID
+   */
+  _getSiteIdFromDOM() {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.getAttribute('x:id') || '';
+    }
+    return '';
+  }
+
+  /**
+   * Create a model for a collection
+   * @param {string} collectionName - Name of the collection
+   * @returns {DBModel} Model instance
+   */
+  model(collectionName) {
+    return new DBModel(collectionName, this);
+  }
+
+  /**
+   * Insert one record
+   * @param {string} tableName - Table name
+   * @param {Array} fields - Fields array
+   * @returns {Promise<Object>} Insert result
+   */
+  async insertOne(tableName, fields) {
+    const fetchFn = async () => { 
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records`, {
+        method: 'POST',
+        headers: this.headers,
+        body: JSON.stringify({ fields })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to insert record: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Insert many records
+   * @param {string} tableName - Table name
+   * @param {Array} records - Records array
+   * @returns {Promise<Object>} Insert result
+   */
+  async insertMany(tableName, records) {
+    const fetchFn = async () => { 
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/bulk`, {
+        method: 'POST',
+        headers: this.headers,
+        body: JSON.stringify({ records })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to insert records: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Query records
+   * @param {string} tableName - Table name
+   * @param {Object} queryParams - Query parameters
+   * @returns {Promise<Array>} Query results
+   */
+  async query(tableName, queryParams) {
+    const fetchFn = async () => { 
+      const params = new URLSearchParams(this._buildQueryParams(queryParams));
+  
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records?${params}`, {
+        headers: this.headers
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to query records: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Update record by ID
+   * @param {string} tableName - Table name
+   * @param {string} id - Record ID
+   * @param {Array} fields - Fields array
+   * @returns {Promise<Object>} Update result
+   */
+  async updateById(tableName, id, fields) {
+    const fetchFn = async () => { 
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/${id}`, {
+        method: 'PATCH',
+        headers: this.headers,
+        body: JSON.stringify({ fields })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to update record: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Update one record
+   * @param {string} tableName - Table name
+   * @param {Object} filters - Filter conditions
+   * @param {Array} fields - Fields array
+   * @returns {Promise<Object>} Update result
+   */
+  async updateOne(tableName, filters, fields) {
+    const fetchFn = async () => { 
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/update`, {
+        method: 'PATCH',
+        headers: this.headers,
+        body: JSON.stringify({
+          filters,
+          fields,
+          limit: 1
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to update record: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Update many records
+   * @param {string} tableName - Table name
+   * @param {Object} filters - Filter conditions
+   * @param {Array} fields - Fields array
+   * @returns {Promise<Object>} Update result
+   */
+  async updateMany(tableName, filters, fields) {
+    const fetchFn = async () => { 
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/update`, {
+        method: 'PATCH',
+        headers: this.headers,
+        body: JSON.stringify({
+          filters,
+          fields
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to update records: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Delete record by ID
+   * @param {string} tableName - Table name
+   * @param {string} id - Record ID
+   * @returns {Promise<Object>} Delete result
+   */
+  async deleteById(tableName, id) {
+    const fetchFn = async () => { 
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/${id}`, {
+        method: 'DELETE',
+        headers: this.headers
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to delete record: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Delete one record
+   * @param {string} tableName - Table name
+   * @param {Object} filters - Filter conditions
+   * @returns {Promise<Object>} Delete result
+   */
+  async deleteOne(tableName, filters) {
+    const fetchFn = async () => { 
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/delete`, {
+        method: 'DELETE',
+        headers: this.headers,
+        body: JSON.stringify({
+          filters,
+          limit: 1
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to delete record: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Delete many records
+   * @param {string} tableName - Table name
+   * @param {Object} filters - Filter conditions
+   * @returns {Promise<Object>} Delete result
+   */
+  async deleteMany(tableName, filters) {
+    const fetchFn = async () => { 
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/delete`, {
+        method: 'DELETE',
+        headers: this.headers,
+        body: JSON.stringify({ filters })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to delete records: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Count records
+   * @param {string} tableName - Table name
+   * @param {Object} filters - Filter conditions
+   * @returns {Promise<Object>} Count result
+   */
+  async count(tableName, filters) {
+    const fetchFn = async () => { 
+      const params = new URLSearchParams({
+        filters: JSON.stringify(filters)
+      });
+  
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/count?${params}`, {
+        headers: this.headers
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to count records: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Check if record exists
+   * @param {string} tableName - Table name
+   * @param {Object} filters - Filter conditions
+   * @returns {Promise<Object>} Exists result
+   */
+  async exists(tableName, filters) {
+    const fetchFn = async () => {
+      const params = new URLSearchParams({
+        filters: JSON.stringify(filters)
+      });
+  
+      const response = await fetch(`${this.baseURL}/collections/${tableName}/records/exists?${params}`, {
+        headers: this.headers
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to check if record exists: ${response.statusText}`);
+      }
+  
+      return await response.json();
+    };
+
+    return await this.cleanFetch(fetchFn);
+  }
+
+  /**
+   * Build query parameters for URL
+   * @private
+   * @param {Object} queryParams - Query parameters
+   * @returns {Object} Formatted parameters
+   */
+  _buildQueryParams(queryParams) {
+    const params = {};
+
+    if (queryParams.filters && Object.keys(queryParams.filters).length > 0) {
+      params.filters = JSON.stringify(queryParams.filters);
+    }
+
+    if (queryParams.sort && Object.keys(queryParams.sort).length > 0) {
+      params.sort = JSON.stringify(queryParams.sort);
+    }
+
+    if (queryParams.limit) {
+      params.limit = queryParams.limit;
+    }
+
+    if (queryParams.skip) {
+      params.skip = queryParams.skip;
+    }
+
+    if (queryParams.select) {
+      params.select = JSON.stringify(queryParams.select);
+    }
+
+    if (queryParams.populate && queryParams.populate.length > 0) {
+      params.populate = JSON.stringify(queryParams.populate);
+    }
+
+    return params;
+  }
+
+  /**
+   * Clean fetch wrapper with error handling
+   * @private
+   * @param {Function} fetchFn - Fetch function
+   * @returns {Promise<Object>} Cleaned response data
+   */
+  async cleanFetch(fetchFn) {
+    try {
+      const response = await fetchFn();
+      if (!response.success) {
+        throw new Error(response.message); 
+      }
+        
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+}
+
+================
+File: src/DBModel.js
+================
+import { QueryBuilder } from './QueryBuilder.js';
+
+/**
+ * DBModel class for database operations
+ * Provides methods for CRUD operations on database collections
+ */
+export class DBModel {
+  constructor(collectionName, apiClient) {
+    this.collectionName = collectionName;
+    this.apiClient = apiClient;
+  }
+
+  /**
+   * Create a new document
+   * @param {Object} data - Document data
+   * @returns {Promise<Object>} Created document
+   */
+  async create(data) {
+    const fields = this._prepareFields(data);
+    return await this.apiClient.insertOne(this.collectionName, fields);
+  }
+
+  /**
+   * Create multiple documents
+   * @param {Array<Object>} dataArray - Array of document data
+   * @returns {Promise<Array>} Created documents
+   */
+  async insertMany(dataArray) {
+    const records = dataArray.map(data => this._prepareFields(data));
+    return await this.apiClient.insertMany(this.collectionName, records);
+  }
+
+  /**
+   * Find documents with optional filters
+   * @param {Object} [filters={}] - Filter conditions
+   * @returns {QueryBuilder} Query builder instance
+   */
+  find(filters = {}) {
+    const query = new QueryBuilder(this.collectionName, this.apiClient);
+    
+    // Apply filters
+    query.where(filters);
+    
+    return query;
+  }
+
+  /**
+   * Find one document
+   * @param {Object} [filters={}] - Filter conditions
+   * @returns {Promise<Object|null>} Found document or null
+   */
+  async findOne(filters = {}, options = {}) {
+    const query = this.find(filters);
+    this._applyQueryOptions(query, options);
+    query.limit(1);
+    const results = await query.exec();
+    return results[0] || null;
+  }
+
+  /**
+   * Find document by ID
+   * @param {string} id - Document ID
+   * @returns {Promise<Object|null>} Found document or null
+   */
+  async findById(id, options = {}) {
+    return await this.findOne({ id }, options);
+  }
+
+  /**
+   * Update one document
+   * @param {Object} filters - Filter conditions
+   * @param {Object} updateData - Update data
+   * @returns {Promise<Object>} Update result
+   */
+  async updateOne(filters, updateData) {
+    const fields = this._prepareFields(updateData);
+    const res = await this.apiClient.updateOne(this.collectionName, filters, fields);
+
+    return {
+      acknowledged: true,
+      matchedCount: res?.id ? 1 : 0,
+      modifiedCount: res?.id ? 1 : 0
+    };
+  }
+
+  /**
+   * Update document by ID
+   * @param {string} id - Document ID
+   * @param {Object} updateData - Update data
+   * @param {Object} [options={}] - Update options
+   * @param {boolean} [options.new=false] - Return updated document
+   * @returns {Promise<Object>} Update result or updated document
+   */
+  async findByIdAndUpdate(id, updateData, options = {}) {
+    const fields = this._prepareFields(updateData);
+    const result = await this.apiClient.updateById(this.collectionName, id, fields);
+    
+    if (options.new) {
+      return await this.findById(id);
+    }
+    return result;
+  }
+
+  /**
+   * Find and update one document
+   * @param {Object} filters - Filter conditions
+   * @param {Object} updateData - Update data
+   * @returns {Promise<Object>} Update result
+   */
+  async findOneAndUpdate(filters, updateData) {
+    const fields = this._prepareFields(updateData);
+    return await this.apiClient.updateOne(this.collectionName, filters, fields);
+  }
+
+  /**
+   * Update many documents
+   * @param {Object} filters - Filter conditions
+   * @param {Object} updateData - Update data
+   * @returns {Promise<Object>} Update result
+   */
+  async updateMany(filters, updateData) {
+    const fields = this._prepareFields(updateData);
+    const res = await this.apiClient.updateMany(this.collectionName, filters, fields);
+
+    return {
+      acknowledged: res.acknowledged,
+      matchedCount: res.matched_count,
+      modifiedCount: res.modified_count
+    };
+  }
+
+  /**
+   * Delete one document
+   * @param {Object} filters - Filter conditions
+   * @returns {Promise<Object>} Delete result
+   */
+  async deleteOne(filters) {
+    const res = await this.apiClient.deleteOne(this.collectionName, filters);
+
+    return {
+      acknowledged: true,
+      deletedCount: res?.id ? 1 : 0
+    };
+  }
+
+  /**
+   * Delete document by ID
+   * @param {string} id - Document ID
+   * @returns {Promise<Object>} Delete result
+   */
+  async findByIdAndDelete(id) {
+    return await this.apiClient.deleteById(this.collectionName, id);
+  }
+
+  /**
+   * Find and delete one document
+   * @param {Object} filters - Filter conditions
+   * @returns {Promise<Object>} Delete result
+   */
+  async findOneAndDelete(filters) {
+    return await this.apiClient.deleteOne(this.collectionName, filters);
+  }
+
+  /**
+   * Delete many documents
+   * @param {Object} filters - Filter conditions
+   * @returns {Promise<Object>} Delete result
+   */
+  async deleteMany(filters) {
+    const res = await this.apiClient.deleteMany(this.collectionName, filters);
+
+    return {
+      acknowledged: true,
+      deletedCount: res.deleted_count
+    };
+  }
+
+  /**
+   * Count documents
+   * @param {Object} [filters={}] - Filter conditions
+   * @returns {Promise<number>} Document count
+   */
+  async countDocuments(filters = {}) {
+    const res = await this.apiClient.count(this.collectionName, filters);
+    return res.count;
+  }
+
+  /**
+   * Check if document exists
+   * @param {Object} filters - Filter conditions
+   * @returns {Promise<boolean>} Existence check result
+   */
+  async exists(filters) {
+    const res = await this.apiClient.exists(this.collectionName, filters);
+    return res.exists;
+  }
+
+  /**
+   * Prepare fields for API request
+   * @private
+   * @param {Object} data - Raw data object
+   * @returns {Array} Formatted fields array
+   */
+  _prepareFields(data) {
+    return Object.keys(data).map(key => ({
+      field_name: key,
+      field_value: data[key]
+    }));
+  }
+
+  /**
+   * Apply read-only query options (select, sort, populate, etc.) to a builder
+   * @private
+   * @param {QueryBuilder} query - Query builder instance
+   * @param {Object} options - Query customization options
+   * @returns {QueryBuilder}
+   */
+  _applyQueryOptions(query, options = {}) {
+    if (!options || typeof options !== 'object') {
+      return query;
+    }
+
+    const {
+      select,
+      sort,
+      populate
+    } = options;
+
+    if (select) {
+      query.select(select);
+    }
+
+    if (sort) {
+      query.sort(sort);
+    }
+
+    if (populate) {
+      const populateConfigs = Array.isArray(populate) ? populate : [populate];
+      populateConfigs.forEach(config => query.populate(config));
+    }
+
+    return query;
+  }
+}
+
+================
+File: src/QueryBuilder.js
+================
+/**
+ * QueryBuilder class for building database queries
+ * Provides a fluent interface for constructing complex database queries
+ */
+export class QueryBuilder {
+  constructor(collectionName, apiClient) {
+    this.collectionName = collectionName;
+    this.apiClient = apiClient;
+    this.filters = {};
+    this.sortOptions = {};
+    this.limitValue = null;
+    this.skipValue = 0;
+    this.selectFields = null;
+    this.populateFields = [];
+  }
+
+  /**
+   * Add a filter condition
+   * @param {string|Object} field - Field name or filter object
+   * @param {string|*} operator - Operator or value (if only 2 args)
+   * @param {*} value - Value (if 3 args)
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  where(field, operator, value) {
+    if (arguments.length === 1) {
+      this.filters = field;
+    } else if (arguments.length === 2) {
+      // where(field, value) - equals
+      this.filters[field] = { '$eq': operator };
+    } else {
+      // where(field, operator, value)
+      this.filters[field] = { [operator]: value };
+    }
+    return this;
+  }
+
+  /**
+   * Add equality filter
+   * @param {string} field - Field name
+   * @param {*} value - Value to match
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  eq(field, value) {
+    this.filters[field] = { '$eq': value };
+    return this;
+  }
+
+  /**
+   * Add greater than filter
+   * @param {string} field - Field name
+   * @param {*} value - Value to compare
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  gt(field, value) {
+    this.filters[field] = { '$gt': value };
+    return this;
+  }
+
+  /**
+   * Add greater than or equal filter
+   * @param {string} field - Field name
+   * @param {*} value - Value to compare
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  gte(field, value) {
+    this.filters[field] = { '$gte': value };
+    return this;
+  }
+
+  /**
+   * Add less than filter
+   * @param {string} field - Field name
+   * @param {*} value - Value to compare
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  lt(field, value) {
+    this.filters[field] = { '$lt': value };
+    return this;
+  }
+
+  /**
+   * Add less than or equal filter
+   * @param {string} field - Field name
+   * @param {*} value - Value to compare
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  lte(field, value) {
+    this.filters[field] = { '$lte': value };
+    return this;
+  }
+
+  /**
+   * Add in filter
+   * @param {string} field - Field name
+   * @param {Array} values - Array of values
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  in(field, values) {
+    this.filters[field] = { '$in': values };
+    return this;
+  }
+
+  /**
+   * Add not in filter
+   * @param {string} field - Field name
+   * @param {Array} values - Array of values
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  nin(field, values) {
+    this.filters[field] = { '$nin': values };
+    return this;
+  }
+
+  /**
+   * Add not equal filter
+   * @param {string} field - Field name
+   * @param {*} value - Value to exclude
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  ne(field, value) {
+    this.filters[field] = { '$ne': value };
+    return this;
+  }
+
+  /**
+   * Add between filter
+   * @param {string} field - Field name
+   * @param {*} value1 - Lower bound
+   * @param {*} value2 - Upper bound
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  between(field, value1, value2) {
+    this.filters[field] = { '$between': [value1, value2] };
+    return this;
+  }
+
+  /**
+   * Add like filter for pattern matching
+   * @param {string} field - Field name
+   * @param {string} pattern - Pattern to match
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  like(field, pattern) {
+    this.filters[field] = { '$like': pattern };
+    return this;
+  }
+
+  /**
+   * Set sort options
+   * @param {Object} sortObj - Sort object {field: 1|-1}
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  sort(sortObj) {
+    this.sortOptions = sortObj;
+    return this;
+  }
+
+  /**
+   * Set limit
+   * @param {number} n - Number of records to limit
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  limit(n) {
+    this.limitValue = n;
+    return this;
+  }
+
+  /**
+   * Set skip
+   * @param {number} n - Number of records to skip
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  skip(n) {
+    this.skipValue = n;
+    return this;
+  }
+
+  /**
+   * Set select fields
+   * @param {string|Array} fields - Fields to select
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  select(fields) {
+    this.selectFields = fields;
+    return this;
+  }
+
+  /**
+   * Add populate configuration
+   * @param {Object} config - Populate configuration
+   * @param {string} config.field - Field to populate
+   * @param {string} config.table - Table to populate from
+   * @param {string} config.referenceField - Reference field
+   * @param {string|Array} [config.select=""] - Fields to select
+   * @param {Object|string} [config.where] - Where conditions (object like QueryBuilder filters, or string)
+   * @param {Object|string} [config.sort] - Sort options (object like {field: 1|-1}, or string)
+   * @param {number|null} [config.limit=null] - Limit
+   * @param {number} [config.skip=0] - Skip
+   * @param {boolean} [config.justOne=false] - Return single record
+   * @returns {QueryBuilder} This instance for chaining
+   */
+  populate({
+    field,
+    table,
+    referenceField, 
+    select = "", 
+    where, 
+    sort, 
+    limit = null, 
+    skip = 0,
+    justOne = false
+  }) {
+    this.populateFields = this.populateFields.concat([{ 
+      field, 
+      table, 
+      referenceField, 
+      select, 
+      where, 
+      sort, 
+      limit, 
+      skip, 
+      justOne 
+    }]);
+    return this;
+  }
+
+  /**
+   * Execute the query
+   * @returns {Promise<Array>} Query results
+   */
+  async exec() {
+    const queryParams = {
+      filters: this.filters,
+      sort: this.sortOptions,
+      limit: this.limitValue,
+      skip: this.skipValue,
+      select: this.selectFields,
+      populate: this.populateFields
+    };
+
+    return await this.apiClient.query(this.collectionName, queryParams);
+  }
+
+  /**
+   * Promise-like interface for chaining
+   * @param {Function} resolve - Resolve callback
+   * @param {Function} reject - Reject callback
+   * @returns {Promise} Promise from exec()
+   */
+  then(resolve, reject) {
+    return this.exec().then(resolve, reject);
+  }
+}
+
+
+
+================================================================
+End of Codebase
+================================================================
