@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2025-01-XX
+
+### Enhanced
+- Enhanced TypeScript definitions for better type safety and IntelliSense support
+- Added `DBConnectionHeaders` interface with specific header properties for better autocomplete
+- Improved type definitions for `PopulateConfig` to make `table` and `referenceField` optional for more flexible usage
+
+### Changed
+- `DBConnectionConfig.headers` now uses `DBConnectionHeaders` interface instead of generic `Record<string, string>`
+- `DBConnection.headers` property now has explicit type `DBConnectionHeaders` for better type checking
+- `PopulateConfig.table` and `PopulateConfig.referenceField` are now optional to support more flexible populate configurations
+
+### Added
+- TypeScript autocomplete support for common headers:
+  - `Content-Type`
+  - `Authorization`
+  - `x-cms-api-key`
+  - `x-article-id`
+  - `x-product-id`
+- Index signature in `DBConnectionHeaders` to allow custom headers while maintaining type safety
+
 ## [1.0.5] - 2025-11-13
 
 ### Added
