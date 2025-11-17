@@ -2,11 +2,20 @@
  * TypeScript definitions for WebCake Data library
  */
 
+export interface DBConnectionHeaders {
+  'Content-Type'?: string;
+  'Authorization'?: string;
+  'x-cms-api-key'?: string;
+  'x-article-id'?: string;
+  'x-product-id'?: string;
+  [key: string]: string | undefined;
+}
+
 export interface DBConnectionConfig {
   baseURL?: string;
   siteId?: string;
   token?: string;
-  headers?: Record<string, string>;
+  headers?: DBConnectionHeaders;
 }
 
 export interface FieldData {
@@ -16,8 +25,8 @@ export interface FieldData {
 
 export interface PopulateConfig {
   field: string;
-  table: string;
-  referenceField: string;
+  table?: string;
+  referenceField?: string;
   select?: string | string[];
   where?: Record<string, any> | string;
   sort?: Record<string, 1 | -1> | string;
@@ -106,7 +115,7 @@ export declare class DBModel {
 export declare class DBConnection {
   baseURL: string;
   siteId: string;
-  headers: Record<string, string>;
+  headers: DBConnectionHeaders;
   
   constructor(config?: DBConnectionConfig);
   
