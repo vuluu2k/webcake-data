@@ -3,6 +3,11 @@
  * Provides a fluent interface for constructing complex database queries
  */
 export class QueryBuilder {
+  /**
+   * Create a QueryBuilder instance
+   * @param {string} collectionName - Name of the collection
+   * @param {DBConnection} apiClient - DBConnection instance
+   */
   constructor(collectionName, apiClient) {
     this.collectionName = collectionName;
     this.apiClient = apiClient;

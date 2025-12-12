@@ -96,21 +96,30 @@ new DBConnection(config)
 
 **Parameters:**
 - `config.baseURL` (string, optional): API base URL
+- `config.domain` (string, optional): Domain base URL (overrides default relative path if provided)
 - `config.siteId` (string, optional): Site ID (auto-detected from DOM if not provided)
 - `config.token` (string, optional): Authentication token
 - `config.headers` (object, optional): Additional headers
 - `config.headers['x-cms-api-key']` (string, optional): API key for permission checking
 
+**Automatic Header Injection:**
+The library automatically monitors `window.store_post` and `window.store_product`. If present, it injects `x-article-id` and `x-product-id` headers respectively.
+
 **Example:**
 ```javascript
 const db = new DBConnection({
-  baseURL: 'https://api.webcake.com/api/v1',
+  baseURL: 'https://api.webcake.com/api/v1', // Optional: defaults to /api/v1
+  domain: 'https://api.webcake.com', // Optional: Base domain to prepend to baseURL
   siteId: 'your-site-id',
   token: 'your-auth-token',
   headers: {
     'x-cms-api-key': 'your-api-key' // For API permission checking
   }
 });
+
+// Automatic Header Injection:
+// If window.store_post or window.store_product are present,
+// the library will automatically inject 'x-article-id' and 'x-product-id' headers.
 ```
 
 #### Methods

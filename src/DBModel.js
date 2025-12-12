@@ -5,6 +5,11 @@ import { QueryBuilder } from './QueryBuilder.js';
  * Provides methods for CRUD operations on database collections
  */
 export class DBModel {
+  /**
+   * Create a DBModel instance
+   * @param {string} collectionName - Name of the collection
+   * @param {DBConnection} apiClient - DBConnection instance
+   */
   constructor(collectionName, apiClient) {
     this.collectionName = collectionName;
     this.apiClient = apiClient;

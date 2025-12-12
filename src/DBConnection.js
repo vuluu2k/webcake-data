@@ -29,18 +29,26 @@ import { DBModel } from './DBModel.js';
 export class DBConnection {
   /**
    * Create a DBConnection instance
-   * @param {Object} config - Configuration options
-   * @param {string} config.siteId - Site ID (defaults to DOM attribute 'x:id')
-   * @param {string} config.baseURL - Base URL for API endpoints
-   * @param {string} config.token - Authentication token (used in Authorization header)
-   * @param {Object} config.headers - Custom headers to include in requests
-   * @param {string} config.headers['x-cms-api-key'] - API key for permission checking
+   * @param {Object} [config] - Configuration options
+   * @param {string} [config.siteId] - Site ID (defaults to DOM attribute 'x:id')
+   * @param {string} [config.baseURL] - Base URL for API endpoints
+   * @param {string} [config.domain] - Domain base URL (overrides default relative path if provided)
+   * @param {string} [config.token] - Authentication token (used in Authorization header)
+   * @param {Object} [config.headers] - Custom headers to include in requests
+   * @param {string} [config.headers['x-cms-api-key']] - API key for permission checking
+   * @description Automatically detects `window.store_post` and `window.store_product` to inject `x-article-id` and `x-product-id` headers if available.
    */
   constructor(config = {}) {
     // Get siteId from DOM or config
     const siteId = config.siteId || this._getSiteIdFromDOM();
+    const domain = config.domain
     
     this.baseURL = config.baseURL || `/api/v1/${siteId}`;
+
+    if(domain) {
+      this.baseURL = `${domain}/api/v1/${siteId}`;
+    }
+    
     this.siteId = siteId;
     this.headers = {
       'Content-Type': 'application/json',
