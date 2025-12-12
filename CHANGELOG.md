@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2025-12-12
+
+### Added
+- `domain` configuration option to `DBConnection` to support custom API domains
+- Automatic injection of `x-article-id` and `x-product-id` headers when `window.store_post` or `window.store_product` are present
+- Updated documentation to reflect new configuration options
+
 ## [1.0.6] - 2025-01-XX
 
 ### Enhanced
