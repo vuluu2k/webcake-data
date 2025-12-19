@@ -39,11 +39,16 @@ export class DBConnection {
    * @description Automatically detects `window.store_post` and `window.store_product` to inject `x-article-id` and `x-product-id` headers if available.
    */
   constructor(config = {}) {
-    // Get siteId from DOM or config
-    const siteId = config.siteId || this._getSiteIdFromDOM();
-    const domain = config.domain
+    // Get global object safely (Node.js only, undefined in browser)
+    const globalObj = typeof global !== 'undefined' ? global : {};
     
-    this.baseURL = config.baseURL || `/api/v1/${siteId}`;
+    // Get siteId from DOM or config
+    const siteId = config.siteId || globalObj.siteId || this._getSiteIdFromDOM();
+    const domain = config.domain || globalObj.domain;
+    const token = config.token || globalObj.token;
+    const headers = config.headers || globalObj.headers || {};
+    
+    this.baseURL = config.baseURL || globalObj.baseURL || `/api/v1/${siteId}`;
 
     if(domain) {
       this.baseURL = `${domain}/api/v1/${siteId}`;
@@ -52,8 +57,8 @@ export class DBConnection {
     this.siteId = siteId;
     this.headers = {
       'Content-Type': 'application/json',
-      'Authorization': config.token ? `Bearer ${config.token}` : '',
-      ...config.headers
+      'Authorization': token ? `Bearer ${token}` : '',
+      ...headers
     };
 
     if (typeof window !== 'undefined') {
