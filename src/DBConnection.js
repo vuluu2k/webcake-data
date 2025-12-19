@@ -40,15 +40,15 @@ export class DBConnection {
    */
   constructor(config = {}) {
     // Get global object safely (Node.js only, undefined in browser)
-    const globalObj = typeof global !== 'undefined' ? global : {};
+    const globalObj = global || {};
     
     // Get siteId from DOM or config
-    const siteId = config.siteId || globalObj.siteId || this._getSiteIdFromDOM();
-    const domain = config.domain || globalObj.domain;
-    const token = config.token || globalObj.token;
-    const headers = config.headers || globalObj.headers || {};
+    const siteId = config.siteId || globalObj['siteId'] || this._getSiteIdFromDOM();
+    const domain = config.domain || globalObj['domain'];
+    const token = config.token || globalObj['token'];
+    const headers = config.headers || globalObj['headers'] || {};
     
-    this.baseURL = config.baseURL || globalObj.baseURL || `/api/v1/${siteId}`;
+    this.baseURL = config.baseURL || globalObj['baseURL'] || `/api/v1/${siteId}`;
 
     if(domain) {
       this.baseURL = `${domain}/api/v1/${siteId}`;

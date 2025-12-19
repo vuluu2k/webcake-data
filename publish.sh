@@ -1,70 +1,58 @@
 #!/bin/bash
 
-# Script to publish webcake-data to npm
+# NPM Publishing Script for WebCake Data
 
-echo "🚀 Publishing webcake-data..."
+echo "📦 Starting NPM Publishing Process..."
 
-# Check if we're in the right directory
-if [ ! -f "webcake-data.js" ]; then
-    echo "❌ Error: webcake-data.js not found!"
-    echo "Please run this script from the plugin directory."
+# 1. Check if logged in to npm
+if ! npm whoami &>/dev/null; then
+    echo "❌ Error: Not logged in to npm. Please run 'npm login' first."
     exit 1
 fi
 
-# Check if package.json exists
+# 2. Get current version
 if [ ! -f "package.json" ]; then
     echo "❌ Error: package.json not found!"
     exit 1
 fi
 
-# Check if README.md exists
-if [ ! -f "README.md" ]; then
-    echo "❌ Error: README.md not found!"
-    exit 1
-fi
-
-# Check if user is logged in to npm
-if ! npm whoami > /dev/null 2>&1; then
-    echo "❌ Error: Not logged in to npm!"
-    echo "Please run: npm login"
-    exit 1
-fi
-
-# Build the library
-echo "🔨 Building library..."
-npm run build
-
-if [ $? -ne 0 ]; then
-    echo "❌ Build failed!"
-    exit 1
-fi
-
-# Get current version
 CURRENT_VERSION=$(node -p "require('./package.json').version")
 echo "📦 Current version: $CURRENT_VERSION"
 
-# Ask for new version
-echo "Enter new version (or press Enter to keep current):"
-read NEW_VERSION
+# 3. Build the package
+echo "🔨 Building package..."
+npm run build
 
-if [ -z "$NEW_VERSION" ]; then
-    NEW_VERSION=$CURRENT_VERSION
-fi
-
-# Update version in package.json
-npm version $NEW_VERSION --no-git-tag-version
-
-echo "📝 Publishing version $NEW_VERSION..."
-
-# Publish to npm
-npm publish
-
-if [ $? -eq 0 ]; then
-    echo "✅ Successfully published webcake-data@$NEW_VERSION"
-    echo "🔗 https://www.npmjs.com/package/webcake-data"
-else
-    echo "❌ Failed to publish package"
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Build failed!"
     exit 1
 fi
 
-echo "🎉 Done!" 
+echo "✅ Build successful!"
+
+# 4. Confirm publish
+echo ""
+echo "⚠️  You are about to publish webcake-data@$CURRENT_VERSION to npm."
+echo "This action cannot be undone easily."
+echo ""
+read -p "Do you want to continue? (yes/no): " CONFIRM
+
+if [ "$CONFIRM" != "yes" ]; then
+    echo "❌ Publishing cancelled."
+    exit 0
+fi
+
+# 5. Publish to npm
+echo "📤 Publishing to npm..."
+npm publish
+
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Publishing failed!"
+    exit 1
+fi
+
+echo ""
+echo "✅ Successfully published webcake-data@$CURRENT_VERSION to npm!"
+echo ""
+echo "🔗 Package URL: https://www.npmjs.com/package/webcake-data"
+echo "📦 Install command: npm install webcake-data@$CURRENT_VERSION"
