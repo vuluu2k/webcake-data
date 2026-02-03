@@ -108,7 +108,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to insert record: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to insert record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -132,7 +133,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to insert records: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to insert records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -156,7 +158,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to query records: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to query records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -181,7 +184,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to update record: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to update record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -210,7 +214,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to update record: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to update record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -238,7 +243,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to update records: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to update records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -261,7 +267,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to delete record: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to delete record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -288,7 +295,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to delete record: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to delete record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -312,7 +320,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to delete records: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to delete records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -338,7 +347,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to count records: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to count records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
@@ -364,7 +374,8 @@ export class DBConnection {
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to check if record exists: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to check if record exists: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
   
       return await response.json();
