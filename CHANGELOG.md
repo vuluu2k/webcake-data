@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.10] - 2026-02-03
+
+### Improved
+- Enhanced error messages in `DBConnection` to include detailed API response data for better debugging
+- All error messages now display both HTTP status text and JSON response from the API
+- Added safe JSON parsing fallback to prevent errors when API response is not valid JSON
+
+### Changed
+- Updated error handling in all `DBConnection` methods:
+  - `insertOne()` - Now includes API error response details
+  - `insertMany()` - Now includes API error response details
+  - `query()` - Now includes API error response details
+  - `updateById()` - Now includes API error response details
+  - `updateOne()` - Now includes API error response details
+  - `updateMany()` - Now includes API error response details
+  - `deleteById()` - Now includes API error response details
+  - `deleteOne()` - Now includes API error response details
+  - `deleteMany()` - Now includes API error response details
+  - `count()` - Now includes API error response details
+  - `exists()` - Now includes API error response details
+
+### Developer Experience
+- Significantly improved debugging experience with detailed error information
+- Error messages now show the exact error response from the server, making it easier to identify and fix issues
+
 ## [1.0.7] - 2025-12-12
 
 ### Added
