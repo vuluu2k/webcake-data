@@ -158,10 +158,10 @@ const complexQuery = await User.find()
   .lte('age', 40)
   .in('role', ['admin', 'moderator'])
   .like('email', '%@company.com')
-  .sort({ created_at: -1 })
+  .sort({ inserted_at: -1 })
   .limit(50)
   .skip(0)
-  .select('name email role created_at')
+  .select('name email role inserted_at')
   .exec();
 
 // Chained conditions
@@ -181,7 +181,7 @@ const usersWithPosts = await User.find()
     field: 'posts',
     table: 'posts',
     referenceField: 'user_id',
-    select: 'title content created_at'
+    select: 'title content inserted_at'
   })
   .exec();
 
@@ -192,8 +192,8 @@ const usersWithRecentPosts = await User.find()
     table: 'posts',
     referenceField: 'user_id',
     select: 'title content',
-    where: { published: true, created_at: { $gte: new Date(Date.now() - 7*24*60*60*1000) } },
-    sort: { created_at: -1 },
+    where: { published: true, inserted_at: { $gte: new Date(Date.now() - 7*24*60*60*1000) } },
+    sort: { inserted_at: -1 },
     limit: 5,
     justOne: false
   })
@@ -211,7 +211,7 @@ const usersWithPostsAndComments = await User.find()
     field: 'comments',
     table: 'comments',
     referenceField: 'user_id',
-    select: 'content created_at',
+    select: 'content inserted_at',
     limit: 10
   })
   .exec();
@@ -258,7 +258,7 @@ class UserService {
   async createUser(userData) {
     return await this.User.create({
       ...userData,
-      created_at: new Date(),
+      inserted_at: new Date(),
       active: true
     });
   }
@@ -266,7 +266,7 @@ class UserService {
   async getActiveUsers(page = 1, limit = 10) {
     const skip = (page - 1) * limit;
     return await this.User.find({ active: true })
-      .sort({ created_at: -1 })
+      .sort({ inserted_at: -1 })
       .limit(limit)
       .skip(skip)
       .exec();
@@ -287,8 +287,8 @@ class UserService {
         field: 'posts',
         table: 'posts',
         referenceField: 'user_id',
-        select: 'title content created_at',
-        sort: { created_at: -1 }
+        select: 'title content inserted_at',
+        sort: { inserted_at: -1 }
       })
       .exec();
   }
@@ -322,7 +322,7 @@ class BlogService {
       ...postData,
       user_id: userId,
       published: false,
-      created_at: new Date()
+      inserted_at: new Date()
     });
   }
 
@@ -353,8 +353,8 @@ class BlogService {
         field: 'comments',
         table: 'comments',
         referenceField: 'post_id',
-        select: 'content created_at',
-        sort: { created_at: 1 }
+        select: 'content inserted_at',
+        sort: { inserted_at: 1 }
       })
       .exec();
   }
@@ -396,7 +396,7 @@ class AnalyticsService {
     const totalUsers = await this.User.countDocuments();
     const activeUsers = await this.User.countDocuments({ active: true });
     const newUsersThisMonth = await this.User.countDocuments({
-      created_at: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) }
+      inserted_at: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) }
     });
 
     return {
@@ -451,9 +451,9 @@ const users = await User.find({ active: true })
 
 // Use indexes in your queries
 const recentUsers = await User.find({ 
-  created_at: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+  inserted_at: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
 })
-  .sort({ created_at: -1 })
+  .sort({ inserted_at: -1 })
   .exec();
 
 // Batch operations when possible
