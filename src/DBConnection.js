@@ -398,7 +398,7 @@ export class DBConnection {
     }
 
     if (queryParams.sort && Object.keys(queryParams.sort).length > 0) {
-      params.sort = JSON.stringify(queryParams.sort);
+      params.sort = JSON.stringify(Object.entries(queryParams.sort));
     }
 
     if (queryParams.limit) {
