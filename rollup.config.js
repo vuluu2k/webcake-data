@@ -26,6 +26,7 @@ export default [
   // UMD build (minified) for browser
   {
     input: 'index.js',
+    context: 'window',
     output: {
       file: 'dist/webcake-data.umd.min.js',
       format: 'umd',
@@ -61,6 +62,7 @@ export default [
   // UMD build (unminified for development)
   {
     input: 'index.js',
+    context: 'window',
     output: {
       file: 'dist/webcake-data.umd.js',
       format: 'umd',
