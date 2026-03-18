@@ -40,20 +40,20 @@ export class DBConnection {
    */
   constructor(config = {}) {
     // Get global object safely (Node.js only, undefined in browser)
-    const globalObj = global || {};
-    
+    const globalObj = typeof global !== 'undefined' ? global : {};
+
     // Get siteId from DOM or config
     const siteId = config.siteId || globalObj['siteId'] || this._getSiteIdFromDOM();
     const domain = config.domain || globalObj['domain'];
     const token = config.token || globalObj['token'];
     const headers = config.headers || globalObj['headers'] || {};
-    
+
     this.baseURL = config.baseURL || globalObj['baseURL'] || `/api/v1/${siteId}`;
 
-    if(domain) {
+    if (domain) {
       this.baseURL = `${domain}/api/v1/${siteId}`;
     }
-    
+
     this.siteId = siteId;
     this.headers = {
       'Content-Type': 'application/json',
@@ -62,11 +62,11 @@ export class DBConnection {
     };
 
     if (typeof window !== 'undefined') {
-      if(window?.store_post?.viewPost?.id) {
+      if (window?.store_post?.viewPost?.id) {
         this.headers['x-article-id'] = window.store_post.viewPost.id;
       }
 
-      if(window?.store_product?.viewProduct?.id) {
+      if (window?.store_product?.viewProduct?.id) {
         this.headers['x-product-id'] = window.store_product.viewProduct.id;
       }
     }
@@ -100,18 +100,18 @@ export class DBConnection {
    * @returns {Promise<Object>} Insert result
    */
   async insertOne(tableName, fields) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records`, {
         method: 'POST',
         headers: this.headers,
         body: JSON.stringify({ fields })
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to insert record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -125,18 +125,18 @@ export class DBConnection {
    * @returns {Promise<Object>} Insert result
    */
   async insertMany(tableName, records) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/bulk`, {
         method: 'POST',
         headers: this.headers,
         body: JSON.stringify({ records })
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to insert records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -150,18 +150,18 @@ export class DBConnection {
    * @returns {Promise<Array>} Query results
    */
   async query(tableName, queryParams) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const params = new URLSearchParams(this._buildQueryParams(queryParams));
-  
+
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records?${params}`, {
         headers: this.headers
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to query records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -176,18 +176,18 @@ export class DBConnection {
    * @returns {Promise<Object>} Update result
    */
   async updateById(tableName, id, fields) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/${id}`, {
         method: 'PATCH',
         headers: this.headers,
         body: JSON.stringify({ fields })
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to update record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -202,7 +202,7 @@ export class DBConnection {
    * @returns {Promise<Object>} Update result
    */
   async updateOne(tableName, filters, fields) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/update`, {
         method: 'PATCH',
         headers: this.headers,
@@ -212,12 +212,12 @@ export class DBConnection {
           limit: 1
         })
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to update record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -232,7 +232,7 @@ export class DBConnection {
    * @returns {Promise<Object>} Update result
    */
   async updateMany(tableName, filters, fields) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/update`, {
         method: 'PATCH',
         headers: this.headers,
@@ -241,12 +241,12 @@ export class DBConnection {
           fields
         })
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to update records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -260,17 +260,17 @@ export class DBConnection {
    * @returns {Promise<Object>} Delete result
    */
   async deleteById(tableName, id) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/${id}`, {
         method: 'DELETE',
         headers: this.headers
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to delete record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -284,7 +284,7 @@ export class DBConnection {
    * @returns {Promise<Object>} Delete result
    */
   async deleteOne(tableName, filters) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/delete`, {
         method: 'DELETE',
         headers: this.headers,
@@ -293,12 +293,12 @@ export class DBConnection {
           limit: 1
         })
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to delete record: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -312,18 +312,18 @@ export class DBConnection {
    * @returns {Promise<Object>} Delete result
    */
   async deleteMany(tableName, filters) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/delete`, {
         method: 'DELETE',
         headers: this.headers,
         body: JSON.stringify({ filters })
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to delete records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -337,20 +337,20 @@ export class DBConnection {
    * @returns {Promise<Object>} Count result
    */
   async count(tableName, filters) {
-    const fetchFn = async () => { 
+    const fetchFn = async () => {
       const params = new URLSearchParams({
         filters: JSON.stringify(filters)
       });
-  
+
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/count?${params}`, {
         headers: this.headers
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to count records: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -368,16 +368,16 @@ export class DBConnection {
       const params = new URLSearchParams({
         filters: JSON.stringify(filters)
       });
-  
+
       const response = await fetch(`${this.baseURL}/collections/${tableName}/records/exists?${params}`, {
         headers: this.headers
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`Failed to check if record exists: ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
-  
+
       return await response.json();
     };
 
@@ -430,9 +430,9 @@ export class DBConnection {
     try {
       const response = await fetchFn();
       if (!response.success) {
-        throw new Error(response.message); 
+        throw new Error(response.message);
       }
-        
+
       return response.data;
     } catch (error) {
       throw error;
