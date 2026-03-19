@@ -40,7 +40,7 @@ export class DBConnection {
    */
   constructor(config = {}) {
     // Get global object safely (Node.js only, undefined in browser)
-    const globalObj = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : {};
+    const globalObj = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : {};
 
     // Get siteId from DOM or config
     const siteId = config.siteId || globalObj['siteId'] || this._getSiteIdFromDOM();
